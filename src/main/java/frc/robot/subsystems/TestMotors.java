@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.RelativeEncoder;
 
 /**
  *
@@ -31,6 +33,19 @@ public class TestMotors extends SubsystemBase {
     private CANSparkMax motorController2;
     private CANSparkMax motorController3;
     private CANSparkMax motorController4;
+    private RelativeEncoder encoder1;
+    private RelativeEncoder encoder2;
+    private RelativeEncoder encoder3;
+    private RelativeEncoder encoder4;
+    
+    private SparkMaxPIDController pidController1;
+    private SparkMaxPIDController pidController3;
+    private SparkMaxPIDController pidController4;
+    public double m1_kP, m1_kI, m1_kD, m1_kIz, m1_kFF, kMaxOutput, kMinOutput, maxRPM;
+    public double m3_kP, m3_kI, m3_kD, m3_kIz, m3_kFF;
+    public double m4_kP, m4_kI, m4_kD, m4_kIz, m4_kFF;
+    public double kMaxAcceleration, kMaxVelocity;
+    
 
     /**
     *
@@ -48,8 +63,136 @@ public class TestMotors extends SubsystemBase {
         motorController4 = new CANSparkMax(57, MotorType.kBrushless);
         motorController4.setInverted(false);
 
+        encoder1 = motorController1.getEncoder();
+        encoder2 = motorController2.getEncoder();
+        encoder3 = motorController3.getEncoder();
+        encoder4 = motorController4.getEncoder();
+
+        motorController1.restoreFactoryDefaults();
+        motorController3.restoreFactoryDefaults();
+        motorController4.restoreFactoryDefaults();
+
+        pidController1 = motorController1.getPIDController();
+        pidController3 = motorController3.getPIDController();
+        pidController4 = motorController4.getPIDController();
+
+        // PID coeffiecients
+        m1_kP = 6e-5; 
+        m1_kI = 0;
+        m1_kD = 0; 
+        m1_kIz = 0; 
+        m1_kFF = 0.000175; 
+
+        m3_kP = 6e-5; 
+        m3_kI = 0;
+        m3_kD = 0; 
+        m3_kIz = 0; 
+        m3_kFF = 0.000175; 
+
+        m4_kP = 0.5; 
+        m4_kI = 0;
+        m4_kD = 0; 
+        m4_kIz = 0; 
+        m4_kFF = 0; 
+
+        kMaxOutput = 1; 
+        kMinOutput = -1;
+        maxRPM = 5700;
+
+        kMaxAcceleration = 868;
+        kMaxVelocity = 5000;
+
+        // set PID coefficients for motor 1
+        pidController1.setP(m1_kP);
+        pidController1.setI(m1_kI);
+        pidController1.setD(m1_kD);
+        pidController1.setIZone(m1_kIz);
+        pidController1.setFF(m1_kFF);
+        pidController1.setOutputRange(kMinOutput, kMaxOutput);
+
+        // can set PID values with a gain & a slot ID
+        pidController1.setSmartMotionMaxAccel(kMaxAcceleration, 0);
+        pidController1.setSmartMotionMaxVelocity(kMaxVelocity, 0);
+
+        // set PID coefficients for motor 3
+        pidController3.setP(m3_kP);
+        pidController3.setI(m3_kI);
+        pidController3.setD(m3_kD);
+        pidController3.setIZone(m3_kIz);
+        pidController3.setFF(m3_kFF);
+        pidController3.setOutputRange(kMinOutput, kMaxOutput);
+
+        // set PID coefficients for motor 4
+        pidController4.setP(m4_kP);
+        pidController4.setI(m4_kI);
+        pidController4.setD(m4_kD);
+        pidController4.setIZone(m4_kIz);
+        pidController4.setFF(m4_kFF);
+        pidController4.setOutputRange(kMinOutput, kMaxOutput);
+
+        // pidController4.getSma
+   
+
         ShuffleboardContent.initMotorShuffleboard(motorController1);
 
+    }
+
+    /**
+     * PID velocity control setter for motor 1
+     * 
+     * @param velocity in rpm
+     */
+    public void SetMotor1Velocity(double velocity) {
+        pidController1.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    }
+
+    public void SetMotor1SmartVelocity(double velocity){
+        pidController1.setReference(velocity, CANSparkMax.ControlType.kSmartVelocity);
+    }
+
+    /**
+     * PID position control setter for motor 1
+     * 
+     * @param position in rotations
+     */
+    public void SetMotor1Position(double position) {
+        pidController1.setReference(position, CANSparkMax.ControlType.kPosition);
+    }
+
+    /**
+     * PID velocity control setter for motor 3
+     * 
+     * @param velocity in rpm
+     */
+    public void SetMotor3Velocity(double velocity) {
+        pidController3.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    }
+
+    /**
+     * PID position control setter for motor 3
+     * 
+     * @param position in rotations
+     */
+    public void SetMotor3Position(double position) {
+        pidController3.setReference(position, CANSparkMax.ControlType.kPosition);
+    }
+
+    /**
+     * PID velocity control setter for motor 4
+     * 
+     * @param velocity in rpm
+     */
+    public void SetMotor4Velocity(double velocity) {
+        pidController4.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    }
+
+    /**
+     * PID position control setter for motor 4
+     * 
+     * @param position in rotations
+     */
+    public void SetMotor4Position(double position) {
+        pidController4.setReference(position, CANSparkMax.ControlType.kPosition);
     }
 
     @Override
@@ -113,6 +256,15 @@ public class TestMotors extends SubsystemBase {
 
     public double GetMotor4Velocity() {
         return motorController4.getEncoder().getVelocity();
+    }
+
+    public void resetMotor1Position() {
+        encoder1.setPosition(0);
+    }
+
+    public void resetMotor4Position() {
+        // encoder4.
+        encoder4.setPosition(0);
     }
 
 }

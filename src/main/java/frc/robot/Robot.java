@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
         m_robotContainer = RobotContainer.getInstance();
         xboxController = m_robotContainer.getXboxController1();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
+        
     }
 
     /**
@@ -70,10 +71,16 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void disabledInit() {
+        // reset motor position on init
+        System.out.println("DISABLED - RESET MOTOR POSITION");
+        m_robotContainer.m_test.resetMotor1Position();
+        m_robotContainer.m_test.resetMotor4Position();
+
     }
 
     @Override
     public void disabledPeriodic() {
+        System.out.println("position: " + m_robotContainer.m_test.GetMotor4Position());
     }
 
     /**
@@ -115,6 +122,8 @@ public class Robot extends TimedRobot {
 
         // Motor 1 -> Port 0, LY
 
+        
+
 // FLY WHEEL TESTING // Okay-Accuracy, Aggressive Shot, Furthest
         // m_robotContainer.m_test.SetMotor1Speed(.8);
         // m_robotContainer.m_test.SetMotor2Speed(-.4);
@@ -122,17 +131,48 @@ public class Robot extends TimedRobot {
         // m_robotContainer.m_test.SetMotor4Speed(-.3);
 
 //FLY WHEEL Modification // Most Consistant, High-Accuracy
-        m_robotContainer.m_test.SetMotor1Speed(.7);
-        m_robotContainer.m_test.SetMotor2Speed(-.75);
-        m_robotContainer.m_test.SetMotor3Speed(.45);
-        m_robotContainer.m_test.SetMotor4Speed(-.4);
+        // m_robotContainer.m_test.SetMotor1Speed(.60);
+        // m_robotContainer.m_test.SetMotor2Speed(-.55);
+        // m_robotContainer.m_test.SetMotor3Speed(.45);
+        // m_robotContainer.m_test.SetMotor4Speed(-.4);
 
-        System.out.println(
-            "Top Left: " + m_robotContainer.m_test.GetMotor1Velocity() +
-            ", Top Right: " + m_robotContainer.m_test.GetMotor2Velocity() + 
-            ", Bottom Right: " + m_robotContainer.m_test.GetMotor3Velocity() +
-            ", Bottom Right: " + m_robotContainer.m_test.GetMotor4Velocity()
-            );
+//UP AND DOWN LAUNCH CLOSE .55
+        // m_robotContainer.m_test.SetMotor1Speed(-.45); //upper
+        // m_robotContainer.m_test.SetMotor3Speed(.90); //lower
+
+//UP AND DOWN LAUNCH MID REAL
+        // m_robotContainer.m_test.SetMotor1Speed(-.85); //upper
+        // m_robotContainer.m_test.SetMotor3Speed(.85); //lower
+
+//WITH PID CONTROL - VELOCITY
+        // m_robotContainer.m_test.SetMotor1Velocity(-4340); // -> Shoots Well
+        // m_robotContainer.m_test.SetMotor2Velocity(4340); // -> Shoots well
+
+//WITH PID CONTROL - POSITION
+        // m_robotContainer.m_test.SetMotor4Position(125);
+        // m_robotContainer.m_test.SetMotor4Velocity(500);
+        
+        // double setPosition = 10;
+        // m_robotContainer.m_test.SetMotor1Position(setPosition);
+        // System.out.println("position: " + m_robotContainer.m_test.GetMotor1Position() + 
+        //                     ", setpoint: " + setPosition);
+
+        // double setPosition = 143.055667;
+        // m_robotContainer.m_test.SetMotor4Position(setPosition);
+        // System.out.println("position: " + m_robotContainer.m_test.GetMotor4Position() + 
+        //                     ", setpoint: " + setPosition);
+       
+// WITH PID CONTROL - SMART VELOCITY
+        m_robotContainer.m_test.SetMotor1SmartVelocity(4340);
+        System.out.println("Velocity: " + m_robotContainer.m_test.GetMotor1Velocity());
+
+
+        // System.out.println(
+        //     "Top Left: " + m_robotContainer.m_test.GetMotor1Velocity() +
+        //     ", Top Right: " + m_robotContainer.m_test.GetMotor2Velocity() + 
+        //     ", Bottom Right: " + m_robotContainer.m_test.GetMotor3Velocity() +
+        //     ", Bottom Right: " + m_robotContainer.m_test.GetMotor4Velocity()
+        //     );
 
 // WITH CONTROLLERS
         // double motor1Speed = xboxController.getLeftY();
